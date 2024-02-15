@@ -15,7 +15,7 @@
 
 # Performance on KITTI raw dataset
 <p align="center">
-  <img width="422" height="223" src="./imgs/DCVSMNet_vid.gif" data-zoomable>
+  <img width="422" height="223" src="./imgs/mygif.gif" data-zoomable>
 </p>
 
 
