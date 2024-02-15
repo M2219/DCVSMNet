@@ -19,14 +19,18 @@ The results on SceneFlow
 <p align="center"><img width=90% src="imgs/performance.png"></p>
 
 
-| Method | KITTI 2012 <br> (3-noc) | KITTI 2012 <br> (3-all) | KITTI 2015 <br> (D1-bg) | KITTI 2015 <br> (D1-fg) | KITTI 2015 <br> (D1-all) |
+The results on KITTI dataset using RTX 3090.
+| Method | KITTI 2012 <br> (3-noc) | KITTI 2012 <br> (3-all) | KITTI 2015 <br> (D1-bg) | KITTI 2015 <br> (D1-fg) | KITTI 2015 <br> (D1-all) |Runtime <br> (ms) |
 |:-:|:-:|:-:|:-:|:-:|:-:|
-| PSMNet | 1.49 % | 1.89 % | 1.86 % | 4.62 % | 2.32 % |
-| CGF-PSM | 1.21 % | 1.57 % | 1.46 % | 3.47 % | 1.80 % |
-| GwcNet | 1.32 % | 1.70 % | 1.74 % | 3.93 % | 2.11 % |
-| CGF-Gwc | 1.17 % | 1.52 % | 1.38 % | 3.34 % | 1.71 % |
-| ACVNet | 1.13 % | 1.47 % | 1.37 % | 3.07 % | 1.65 % |
-| CGF-ACV | 1.03 % | 1.34 % | 1.31 % | 3.08 % | 1.61 % |
+| CGI-Stereo | 1.41 % | 1.76 % | 1.66 % | 3.38 % | 1.94 % | 29|
+| CoEx | 1.55 % | 1.93 % | 1.79 % | 3.82 % | 2.13 % |33|
+| BGNet+ | 1.62 % | 2.03 % | 1.81 % | 4.09 % | 2.19 % |35|
+| Fast-ACVNet+ | 1.45 % | 1.85 % | 1.70 % | 3.53 % | 2.01 % |45|
+| HITNet | 1.03 % | 1.34 % | 1.31 % | 3.08 % | 1.61 % |54|
+| DispNetC | 4.11 % | 4.65 % | 2.21 % | 6.16 % | 4.43 % |60|
+| AANet | 1.91 % | 2.42 % | 1.99 % | 5.39 % | 2.55 % |62|
+| JDCNet | 1.64 % | 2.11 % | 1.91 % | 4.47 % | 2.33 % |80|
+| DCVSMNet| 1.03 % | 1.34 % | 1.31 % | 3.08 % | 1.61 % |67|
 
 
 # How to use
