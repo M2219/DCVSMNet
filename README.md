@@ -14,11 +14,10 @@
 
 
 # SOTA results.
-The proposed CGF-ACV ranks the first on the KITTI 2012 and 2015 leaderboards among all the published methods. The proposed CGI-Stereo outperforms all other published real-time methods on KITTI benchmarks.
+The results on SceneFlow
 
 <p align="center"><img width=90% src="imgs/performance.png"></p>
 
-Our proposed CGF can be easily embedded into many existing stereo matching networks, such as PSMNet, GwcNet and ACVNet. The resulting networks are improved in accuracy by a large margin.
 
 | Method | KITTI 2012 <br> (3-noc) | KITTI 2012 <br> (3-all) | KITTI 2015 <br> (D1-bg) | KITTI 2015 <br> (D1-fg) | KITTI 2015 <br> (D1-all) |
 |:-:|:-:|:-:|:-:|:-:|:-:|
