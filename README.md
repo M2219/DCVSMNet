@@ -1,15 +1,14 @@
 <p align="center">
-  <h1 align="center">CGI-Stereo: Accurate and Real-Time Stereo Matching via Context and
-Geometry Interaction</h1>
+  <h1 align="center">DCVSMNet: Double Cost Volume Stereo Matching Network</h1>
   <p align="center">
-    Gangwei Xu*, Huan Zhou*, Xin Yang
+    Mahmoud Tahmasebi*, Saif Huq, Kevin Meehan, Marion McAfee
   </p>
-  <h3 align="center"><a href="https://arxiv.org/pdf/2301.02789.pdf">Paper</a>
+  <h3 align="center"><a href="https://arxiv.org/pdf/addpath.pdf">Paper</a>
   <div align="center"></div>
 </p>
 <p align="center">
   <a href="">
-    <img src="https://github.com/gangweiX/CGI-Stereo/blob/main/imgs/CGI-network.jpg" alt="Logo" width="90%">
+    <img src="https://github.com/gangweiX/CGI-Stereo/blob/main/imgs/DCVSMNet.png" alt="Logo" width="90%">
   </a>
 </p>
 
