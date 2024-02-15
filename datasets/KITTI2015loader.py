@@ -47,35 +47,6 @@ def kt2015_loader(filepath):
     return train_left, train_right, train_displ, val_left, val_right, val_displ
 
 
-def kt2012_loader(filepath):
-
-    left_path = os.path.join(filepath, 'colored_0')
-    right_path = os.path.join(filepath, 'colored_1')
-    displ_path = os.path.join(filepath, 'disp_occ')
-
-    total_name = sorted([name for name in os.listdir(left_path) if name.find('_10') > -1])
-    train_name = total_name[:160]
-    val_name = total_name[160:]
-
-    train_left = []
-    train_right = []
-    train_displ = []
-    for name in train_name:
-        train_left.append(os.path.join(left_path, name))
-        train_right.append(os.path.join(right_path, name))
-        train_displ.append(os.path.join(displ_path, name))
-
-    val_left = []
-    val_right = []
-    val_displ = []
-    for name in val_name:
-        val_left.append(os.path.join(left_path, name))
-        val_right.append(os.path.join(right_path, name))
-        val_displ.append(os.path.join(displ_path, name))
-
-    return train_left, train_right, train_displ, val_left, val_right, val_displ
-
-
 def img_loader(path):
     return Image.open(path).convert('RGB')
 

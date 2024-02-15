@@ -66,6 +66,8 @@ def test():
                                                 time.time() - start_time))
         top_pad_np = tensor2numpy(sample["top_pad"])
         right_pad_np = tensor2numpy(sample["right_pad"])
+        top_pad_np = tensor2numpy(sample["top_pad"])
+        right_pad_np = tensor2numpy(sample["right_pad"])
         left_filenames = sample["left_filename"]
 
         for disp_est, top_pad, right_pad, fn in zip(disp_est_np, top_pad_np, right_pad_np, left_filenames):
