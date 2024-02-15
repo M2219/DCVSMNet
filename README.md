@@ -45,8 +45,8 @@ The results on KITTI dataset using RTX 3090.
 ### Create a virtual environment and activate it.
 
 ```
-conda create -n CGI python=3.8
-conda activate CGI
+conda create -n DCVSMNet python=3.8
+conda activate DCVSMNet
 ```
 ### Dependencies
 
@@ -68,22 +68,20 @@ pip install timm==0.5.4
 
 ## Train
 
-Use the following command to train CGI-Stereo on Scene Flow.
+Use the following command to train DCVSMNet on SceneFlow.
 First training,
 ```
 python train_sceneflow.py --logdir ./checkpoints/sceneflow/first/
 ```
 Second training,
 ```
-python train_sceneflow.py --logdir ./checkpoints/sceneflow/second/ --loadckpt ./checkpoints/sceneflow/first/checkpoint_000019.ckpt
+python train_sceneflow.py --logdir ./checkpoints/sceneflow/second/ --loadckpt ./checkpoints/sceneflow/first/checkpoint_000059.ckpt
 ```
 
-Use the following command to train CGI-Stereo on KITTI (using pretrained model on Scene Flow),
+Use the following command to finetune DCVSMNet on KITTI using the pretrained model on SceneFlow,
 ```
-python train_kitti.py --logdir ./checkpoints/kitti/ --loadckpt ./checkpoints/sceneflow/second/checkpoint_000019.ckpt
+python train_kitti.py --logdir ./checkpoints/kitti/ --loadckpt ./checkpoints/sceneflow/second/checkpoint_000059.ckpt
 ```
-
-
 
 
 ## Evaluation on Scene Flow and KITTI
