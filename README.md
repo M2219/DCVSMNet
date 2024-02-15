@@ -84,7 +84,7 @@ python train_kitti.py --logdir ./checkpoints/kitti/ --loadckpt ./checkpoints/sce
 ```
 
 
-## Evaluation on Scene Flow and KITTI
+## Evaluation on SceneFlow and KITTI
 
 ### Pretrained Model
 * [DCVSMNet](https://drive.google.com/drive/folders/1VcfEpO9Mv0Bt7Xdvckii4SAavW8cL1_d)
@@ -99,14 +99,10 @@ python save_disp.py
 If you find this project helpful in your research, welcome to cite the paper.
 
 ```
-@article{xu2023cgi,
-  title={CGI-Stereo: Accurate and Real-Time Stereo Matching via Context and Geometry Interaction},
-  author={Xu, Gangwei and Zhou, Huan and Yang, Xin},
-  journal={arXiv preprint arXiv:2301.02789},
-  year={2023}
+@article{
 }
 ```
 
 # Acknowledgements
 
-Thanks to Antyanta Bangunharcana for opening source of his excellent work [Correlate-and-Excite](https://github.com/antabangun/coex).
+Thanks to  opening source works [CoEx](https://github.com/antabangun/coex), [ACVNet](https://github.com/gangweiX/Fast-ACVNet), [CGI-Stereo](https://github.com/gangweiX/CGI-Stereo).
