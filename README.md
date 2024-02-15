@@ -8,7 +8,7 @@
 </p>
 <p align="center">
   <a href="">
-    <img src="https://github.com/gangweiX/CGI-Stereo/blob/main/imgs/DCVSMNet.png" alt="Logo" width="90%">
+    <img src="https://github.com/M2219/DCVSMNet/blob/main/imgs/DCVSMNet.png" alt="Logo" width="90%">
   </a>
 </p>
 
