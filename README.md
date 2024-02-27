@@ -3,7 +3,7 @@
   <p align="center">
     Mahmoud Tahmasebi*, Saif Huq, Kevin Meehan, Marion McAfee
   </p>
-  <h3 align="center"><a href="https://arxiv.org/pdf/addpath.pdf">Paper</a>
+  <h3 align="center"><a href="https://arxiv.org/pdf/2402.16473.pdf">Paper</a>
   <div align="center"></div>
 </p>
 <p align="center">
@@ -105,7 +105,13 @@ python save_disp.py
 If you find this project helpful in your research, welcome to cite the paper.
 
 ```
-@article{
+@misc{tahmasebi2024dcvsmnet,
+      title={DCVSMNet: Double Cost Volume Stereo Matching Network}, 
+      author={Mahmoud Tahmasebi and Saif Huq and Kevin Meehan and Marion McAfee},
+      year={2024},
+      eprint={2402.16473},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
 }
 ```
 
