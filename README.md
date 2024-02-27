@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">DCVSMNet: Double Cost Volume Stereo Matching Network</h1>
   <p align="center">
-    Mahmoud Tahmasebi*, Saif Huq, Kevin Meehan, Marion McAfee
+    Mahmoud Tahmasebi* (mahmoud.tahmasebi@research.atu.ie), Saif Huq, Kevin Meehan, Marion McAfee
   </p>
   <h3 align="center"><a href="https://arxiv.org/pdf/2402.16473.pdf">Paper</a>
   <div align="center"></div>
