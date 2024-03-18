@@ -1,3 +1,4 @@
+
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
@@ -74,7 +75,7 @@ for i in trange(len(all_limg)):
 
     with torch.no_grad():
 
-        pred_disp  = model(limg_tensor, rimg_tensor)[-1]
+        pred_disp  = model(limg_tensor, rimg_tensor, train_status=False)[-1]
 
         pred_disp = pred_disp[:, hi - h:, wi - w:]
 

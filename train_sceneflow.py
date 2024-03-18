@@ -189,7 +189,7 @@ def train_sample(sample, compute_metrics=False):
     disp_gt_low = disp_gt_low.cuda()
     optimizer.zero_grad()
 
-    disp_ests = model(imgL, imgR)
+    disp_ests = model(imgL, imgR, train_status=True)
     mask = (disp_gt < args.maxdisp) & (disp_gt > 0)
     mask_low = (disp_gt_low < args.maxdisp) & (disp_gt_low > 0)
     masks = [mask, mask_low]
@@ -218,7 +218,7 @@ def test_sample(sample, compute_metrics=True):
     imgR = imgR.cuda()
     disp_gt = disp_gt.cuda()
 
-    disp_ests = model(imgL, imgR)
+    disp_ests = model(imgL, imgR, train_status=False)
     mask = (disp_gt < args.maxdisp) & (disp_gt > 0)
     masks = [mask]
     disp_gts = [disp_gt]
@@ -245,11 +245,11 @@ def measure_performance(dummy_input1, dummy_input2):
 
     ##GPU-WARM-UP
     for _ in range(10):
-        _ = model(dummy_input1, dummy_input2)
+        _ = model(dummy_input1, dummy_input2, train_status=True)
 
     for rep in range(repetitions):
         starter.record()
-        _ = model(dummy_input1, dummy_input2)
+        _ = model(dummy_input1, dummy_input2, train_status=True)
         ender.record()
 
         ##WAIT FOR GPU SYNC

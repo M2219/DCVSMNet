@@ -77,7 +77,7 @@ def test_trainset():
         rimg_tensor = rimg_tensor.unsqueeze(0).cuda()
 
         with torch.no_grad():
-            pred_disp  = model(limg_tensor, rimg_tensor)[-1]
+            pred_disp  = model(limg_tensor, rimg_tensor, train_status=False)[-1]
             pred_disp = pred_disp[:, hi - h:, wi - w:]
 
         pred_np = pred_disp.squeeze().cpu().numpy()

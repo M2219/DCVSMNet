@@ -229,7 +229,6 @@ class DCVSMNet(nn.Module):
     def __init__(self, maxdisp):
         super(DCVSMNet, self).__init__()
         self.maxdisp = maxdisp
-
         self.concat_channels = 12
         self.feature_extraction = feature_extraction(concat_feature_channel=self.concat_channels)
         self.num_groups = 20
@@ -264,7 +263,7 @@ class DCVSMNet(nn.Module):
             nn.BatchNorm2d(32), nn.ReLU()
             )
 
-    def forward(self, left, right):
+    def forward(self, left, right, train_status):
 
         features_left = self.feature_extraction(left)
         features_right = self.feature_extraction(right)
@@ -298,7 +297,7 @@ class DCVSMNet(nn.Module):
 
         pred_up = context_upsample(pred, spx_pred)
 
-        if self.training:
+        if train_status:
             return [pred_up*4, pred.squeeze(1)*4]
 
         else:

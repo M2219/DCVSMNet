@@ -33,7 +33,7 @@ parser.add_argument('--trainlist', default='./filenames/kitti12_15_all.txt', hel
 parser.add_argument('--testlist',default='./filenames/kitti15_val.txt', help='testing list')
 
 parser.add_argument('--lr', type=float, default=0.001, help='base learning rate')
-parser.add_argument('--batch_size', type=int, default=6, help='training batch size')
+parser.add_argument('--batch_size', type=int, default=4, help='training batch size')
 parser.add_argument('--test_batch_size', type=int, default=1, help='testing batch size')
 parser.add_argument('--epochs', type=int, default=600, help='number of epochs to train')
 parser.add_argument('--lrepochs', type=str, default="300:10", help='the epochs to decay lr: the downscale rate')
@@ -185,7 +185,7 @@ def train_sample(sample, compute_metrics=False):
     disp_gt_low = disp_gt_low.cuda()
     optimizer.zero_grad()
 
-    disp_ests = model(imgL, imgR)
+    disp_ests = model(imgL, imgR, train_status=True)
     mask = (disp_gt < args.maxdisp) & (disp_gt > 0)
     mask_low = (disp_gt_low < args.maxdisp) & (disp_gt_low > 0)
     masks = [mask, mask_low]
@@ -215,7 +215,7 @@ def test_sample(sample, compute_metrics=True):
     imgR = imgR.cuda()
     disp_gt = disp_gt.cuda()
 
-    disp_ests = model(imgL, imgR)
+    disp_ests = model(imgL, imgR, train_status=False)
     mask = (disp_gt < args.maxdisp) & (disp_gt > 0)
     masks = [mask]
     disp_gts = [disp_gt]
