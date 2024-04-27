@@ -74,7 +74,7 @@ for i in trange(len(test_limg)):
     gt_tensor = torch.FloatTensor(disp_gt).unsqueeze(0).unsqueeze(0).cuda()
 
     with torch.no_grad():
-        pred_disp  = model(limg_tensor, rimg_tensor)[-1]
+        pred_disp  = model(limg_tensor, rimg_tensor, train_status=False)[-1]
         pred_disp = pred_disp[:, hi - h:, wi - w:]
 
 
