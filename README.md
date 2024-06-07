@@ -20,7 +20,7 @@
 
 Performance on Jetson AGX Orin for low resolution input
 <p align="center">
-  <img width="600" height="600" src="./imgs/myimage2.gif" data-zoomable>
+  <img width="200" height="400" src="./imgs/myimage2.gif" data-zoomable>
 </p>
 
 # SOTA results.
