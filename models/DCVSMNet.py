@@ -81,7 +81,6 @@ class feature_extraction(nn.Module):
         return {"gwc_feature": gwc_feature, "concat_feature": concat_feature}
 
 
-
 class hourglass_1(nn.Module):
     def __init__(self, in_channels):
         super(hourglass_1, self).__init__()
@@ -226,21 +225,82 @@ class hourglass_2(nn.Module):
 
 
 class DCVSMNet(nn.Module):
-    def __init__(self, maxdisp):
+    def __init__(self, maxdisp, gwc=True, norm_correlation=True, gwc_substract=False, concat=False):
         super(DCVSMNet, self).__init__()
         self.maxdisp = maxdisp
         self.concat_channels = 12
         self.feature_extraction = feature_extraction(concat_feature_channel=self.concat_channels)
-        self.num_groups = 20
-        group_reduction = 8
+        reduction_multiplier = 8
 
-        self.group_stem = BasicConv(self.num_groups, group_reduction, is_3d=True, kernel_size=3, stride=1, padding=1)
-        self.agg_group = BasicConv(group_reduction, group_reduction, is_3d=True, kernel_size=(1,5,5), padding=(0,2,2), stride=1)
-        self.hourglass_1 = hourglass_1(group_reduction)
+        self.gwc = gwc
+        self.norm_correlation = norm_correlation
+        self.gwc_substract = gwc_substract
+        self.concat = concat
 
-        self.corr_stem = BasicConv(1, group_reduction, is_3d=True, kernel_size=3, stride=1, padding=1)
-        self.agg = BasicConv(group_reduction, group_reduction, is_3d=True, kernel_size=(1,5,5), padding=(0,2,2), stride=1)
-        self.hourglass_2 = hourglass_2(group_reduction)
+        if self.gwc and self.norm_correlation:
+            print("Cost volumes: gwc and norm correlation")
+            self.num_groups = 20
+            self.group_stem = BasicConv(self.num_groups, reduction_multiplier, is_3d=True, kernel_size=3, stride=1, padding=1)
+            self.agg_group = BasicConv(reduction_multiplier, reduction_multiplier, is_3d=True, kernel_size=(1,5,5), padding=(0,2,2), stride=1)
+            self.hourglass_1 = hourglass_1(reduction_multiplier)
+
+            self.corr_stem = BasicConv(1, reduction_multiplier, is_3d=True, kernel_size=3, stride=1, padding=1)
+            self.agg = BasicConv(reduction_multiplier, reduction_multiplier, is_3d=True, kernel_size=(1,5,5), padding=(0,2,2), stride=1)
+            self.hourglass_2 = hourglass_2(reduction_multiplier)
+
+        if self.gwc_substract and self.norm_correlation:
+            print("Cost volumes: gwc substract and norm correlation")
+            self.num_groups = 20
+            self.v1_stem = BasicConv(self.num_groups, reduction_multiplier, is_3d=True, kernel_size=3, stride=1, padding=1)
+            self.v1_agg = BasicConv(reduction_multiplier, reduction_multiplier, is_3d=True, kernel_size=(1,5,5), padding=(0,2,2), stride=1)
+            self.hourglass_1 = hourglass_1(reduction_multiplier)
+
+            self.v2_stem = BasicConv(1, reduction_multiplier, is_3d=True, kernel_size=3, stride=1, padding=1)
+            self.v2_agg = BasicConv(reduction_multiplier, reduction_multiplier, is_3d=True, kernel_size=(1,5,5), padding=(0,2,2), stride=1)
+            self.hourglass_2 = hourglass_2(reduction_multiplier)
+
+        if self.gwc_substract and self.concat:
+            print("Cost volumes: gwc substract and concat")
+            self.num_groups = 20
+            self.v1_stem = BasicConv(self.num_groups, reduction_multiplier, is_3d=True, kernel_size=3, stride=1, padding=1)
+            self.v1_agg = BasicConv(reduction_multiplier, reduction_multiplier, is_3d=True, kernel_size=(1,5,5), padding=(0,2,2), stride=1)
+            self.hourglass_1 = hourglass_1(reduction_multiplier)
+
+            self.v2_stem = BasicConv(24, reduction_multiplier, is_3d=True, kernel_size=3, stride=1, padding=1)
+            self.v2_agg = BasicConv(reduction_multiplier, reduction_multiplier, is_3d=True, kernel_size=(1,5,5), padding=(0,2,2), stride=1)
+            self.hourglass_2 = hourglass_2(reduction_multiplier)
+
+        if self.gwc and self.gwc_substract:
+            print("Cost volumes: gwc and gwc substract")
+            self.num_groups = 20
+            self.v1_stem = BasicConv(self.num_groups, reduction_multiplier, is_3d=True, kernel_size=3, stride=1, padding=1)
+            self.v1_agg = BasicConv(reduction_multiplier, reduction_multiplier, is_3d=True, kernel_size=(1,5,5), padding=(0,2,2), stride=1)
+            self.hourglass_1 = hourglass_1(reduction_multiplier)
+
+            self.v2_stem = BasicConv(self.num_groups, reduction_multiplier, is_3d=True, kernel_size=3, stride=1, padding=1)
+            self.v2_agg = BasicConv(reduction_multiplier, reduction_multiplier, is_3d=True, kernel_size=(1,5,5), padding=(0,2,2), stride=1)
+            self.hourglass_2 = hourglass_2(reduction_multiplier)
+
+        if self.gwc and self.concat:
+            print("Cost volumes: gwc and concat")
+            self.num_groups = 20
+            self.v1_stem = BasicConv(self.num_groups, reduction_multiplier, is_3d=True, kernel_size=3, stride=1, padding=1)
+            self.v1_agg = BasicConv(reduction_multiplier, reduction_multiplier, is_3d=True, kernel_size=(1,5,5), padding=(0,2,2), stride=1)
+            self.hourglass_1 = hourglass_1(reduction_multiplier)
+
+            self.v2_stem = BasicConv(24, reduction_multiplier, is_3d=True, kernel_size=3, stride=1, padding=1)
+            self.v2_agg = BasicConv(reduction_multiplier, reduction_multiplier, is_3d=True, kernel_size=(1,5,5), padding=(0,2,2), stride=1)
+            self.hourglass_2 = hourglass_2(reduction_multiplier)
+
+        if self.norm_correlation and self.concat:
+            print("Cost volumes: norm correlation and concat")
+            self.v1_stem = BasicConv(1, reduction_multiplier, is_3d=True, kernel_size=3, stride=1, padding=1)
+            self.v1_agg = BasicConv(reduction_multiplier, reduction_multiplier, is_3d=True, kernel_size=(1,5,5), padding=(0,2,2), stride=1)
+            self.hourglass_1 = hourglass_1(reduction_multiplier)
+
+            self.v2_stem = BasicConv(24, reduction_multiplier, is_3d=True, kernel_size=3, stride=1, padding=1)
+            self.v2_agg = BasicConv(reduction_multiplier, reduction_multiplier, is_3d=True, kernel_size=(1,5,5), padding=(0,2,2), stride=1)
+            self.hourglass_2 = hourglass_2(reduction_multiplier)
 
         self.cat_agg = BasicConv(1, 1, is_3d=True, kernel_size=(1,5,5), padding=(0,2,2), stride=1)
 
@@ -268,20 +328,65 @@ class DCVSMNet(nn.Module):
         features_left = self.feature_extraction(left)
         features_right = self.feature_extraction(right)
 
+        if self.gwc and self.norm_correlation:
+            gwc_volume = build_gwc_volume(features_left["gwc_feature"], features_right["gwc_feature"], self.maxdisp // 4, self.num_groups)
+            gwc_volume = self.group_stem(gwc_volume)
+            volume_1 = self.agg_group(gwc_volume)
 
-        gwc_volume = build_gwc_volume(features_left["gwc_feature"], features_right["gwc_feature"], self.maxdisp // 4, self.num_groups)
-        gwc_volume = self.group_stem(gwc_volume)
-        volume_g = self.agg_group(gwc_volume)
-        c3, c2, c1, gwc_cost = self.hourglass_1(volume_g)
+            corr_volume = build_norm_correlation_volume(features_left["concat_feature"], features_right["concat_feature"], self.maxdisp // 4)
+            corr_volume = self.corr_stem(corr_volume)
+            volume_2 = self.agg(corr_volume)
 
-        corr_volume = build_norm_correlation_volume(features_left["concat_feature"], features_right["concat_feature"], self.maxdisp//4)
-        corr_volume = self.corr_stem(corr_volume)
-        volume_c = self.agg(corr_volume)
-        corr_cost = self.hourglass_2(c3, c2, c1, volume_c)
+        if self.gwc and self.gwc_substract:
+            gwc_volume = build_gwc_volume(features_left["gwc_feature"], features_right["gwc_feature"], self.maxdisp // 4, self.num_groups)
+            gwc_volume = self.v1_stem(gwc_volume)
+            volume_1 = self.v1_agg(gwc_volume)
 
-        add_cost = gwc_cost + corr_cost
+            sub_volume = build_substract_volume(features_left["gwc_feature"], features_right["gwc_feature"], self.maxdisp // 4, self.num_groups)
+            sub_volume = self.v2_stem(sub_volume)
+            volume_2 = self.v2_agg(sub_volume)
+
+        if self.gwc_substract and self.norm_correlation:
+            sub_volume = build_substract_volume(features_left["gwc_feature"], features_right["gwc_feature"], self.maxdisp // 4, self.num_groups)
+            sub_volume = self.v1_stem(sub_volume)
+            volume_1 = self.v1_agg(sub_volume)
+
+            corr_volume = build_norm_correlation_volume(features_left["concat_feature"], features_right["concat_feature"], self.maxdisp // 4)
+            corr_volume = self.v2_stem(corr_volume)
+            volume_2 = self.v2_agg(corr_volume)
+
+        if self.gwc_substract and self.concat:
+            sub_volume = build_substract_volume(features_left["gwc_feature"], features_right["gwc_feature"], self.maxdisp // 4, self.num_groups)
+            sub_volume = self.v1_stem(sub_volume)
+            volume_1 = self.v1_agg(sub_volume)
+
+            cat_volume = build_concat_volume(features_left["concat_feature"], features_right["concat_feature"], self.maxdisp // 4)
+            cat_volume = self.v2_stem(cat_volume)
+            volume_2 = self.v2_agg(cat_volume)
+
+        if self.gwc and self.concat:
+            gwc_volume = build_gwc_volume(features_left["gwc_feature"], features_right["gwc_feature"], self.maxdisp // 4, self.num_groups)
+            gwc_volume = self.v1_stem(gwc_volume)
+            volume_1 = self.v1_agg(gwc_volume)
+
+            cat_volume = build_concat_volume(features_left["concat_feature"], features_right["concat_feature"], self.maxdisp // 4)
+            cat_volume = self.v2_stem(cat_volume)
+            volume_2 = self.v2_agg(cat_volume)
+
+        if self.norm_correlation and self.concat:
+            corr_volume = build_norm_correlation_volume(features_left["concat_feature"], features_right["concat_feature"], self.maxdisp // 4)
+            corr_volume = self.v1_stem(corr_volume)
+            volume_1 = self.v1_agg(corr_volume)
+
+            cat_volume = build_concat_volume(features_left["concat_feature"], features_right["concat_feature"], self.maxdisp // 4)
+            cat_volume = self.v2_stem(cat_volume)
+            volume_2 = self.v2_agg(cat_volume)
+
+        c3, c2, c1, cost_1 = self.hourglass_1(volume_1)
+        cost_2 = self.hourglass_2(c3, c2, c1, volume_2)
+        add_cost = cost_1 + cost_2
+
         cost = self.cat_agg(add_cost)
-
         stem_2x = self.stem_2(left)
         stem_4x = self.stem_4(stem_2x)
         features_left_w = torch.cat((features_left["concat_feature"], stem_4x), 1)

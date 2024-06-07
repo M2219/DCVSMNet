@@ -20,16 +20,45 @@ from models import __models__
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
-
 parser = argparse.ArgumentParser(description='DCVSMNet')
 parser.add_argument('--model', default='DCVSMNet', help='select a model structure', choices=__models__.keys())
 parser.add_argument('--maxdisp', type=int, default=192, help='maximum disparity')
 parser.add_argument('--datapath', default="/datasets/kitti_2012/training/", help='data path')
 parser.add_argument('--kitti', type=str, default='2012')
-parser.add_argument('--loadckpt', default='./checkpoint/sceneflow.ckpt',help='load the weights from a specific checkpoint')
+parser.add_argument('--loadckpt', default='./checkpoint/sceneflow_gwc_and_norm_correlation.ckpt',help='load the weights from a specific checkpoint')
+parser.add_argument('--cv', type=str, default='gwc_and_norm_correlation', choices=[
+          'gwc_and_norm_correlation',
+          'gwc_and_concat',
+          'gwc_and_gwc_substract',
+          'gwc_substract_and_concat',
+          'gwc_substract_and_norm_correlation',
+          'norm_correlation_and_concat',
+], help='selecting a pair of cost volumes')
 
 args = parser.parse_args()
 
+gwc = False
+norm_correlation = False
+gwc_substract = False
+concat = False
+if args.cv == 'gwc_and_norm_correlation':
+    gwc = True
+    norm_correlation = True
+elif args.cv == 'gwc_and_concat':
+    gwc = True
+    concat = True
+elif args.cv == 'gwc_and_gwc_substract':
+    gwc = True
+    gwc_substract = True
+elif args.cv == 'gwc_substract_and_concat':
+    gwc_substract = True
+    concat = True
+elif args.cv == 'gwc_substract_and_norm_correlation':
+    gwc_substract = True
+    norm_correlation = True
+elif args.cv == 'norm_correlation_and_concat':
+    norm_correlation = True
+    concat = True
 
 if args.kitti == '2015':
     all_limg, all_rimg, all_ldisp, test_limg, test_rimg, test_ldisp = kt2015.kt2015_loader(args.datapath)
@@ -40,13 +69,21 @@ test_limg = all_limg + test_limg
 test_rimg = all_rimg + test_rimg
 test_ldisp = all_ldisp + test_ldisp
 
-model = __models__[args.model](args.maxdisp)
+model = __models__[args.model](args.maxdisp, gwc, norm_correlation, gwc_substract, concat)
 model = nn.DataParallel(model)
 model.cuda()
 model.eval()
 
+cv_name = args.loadckpt.split("sceneflow_")[1].split(".")[0]
+if cv_name != args.cv:
+    raise AssertionError("Please load weights compatible with " + cv_name)
+
 state_dict = torch.load(args.loadckpt)
 model.load_state_dict(state_dict['model'])
+
+param_n = np.sum(np.prod(v.size()) for name, v in model.named_parameters() if "auxiliary" not in name)/1e6
+
+print("param size = %fMB", param_n)
 
 pred_mae = 0
 pred_op = 0

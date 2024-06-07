@@ -96,31 +96,28 @@ class Conv2x(nn.Module):
                 mode='nearest')
         if self.concat:
             x = torch.cat((x, rem), 1)
-        else: 
+        else:
             x = x + rem
         x = self.conv2(x)
         return x
 
-
-def disparity_regression(x, maxdisp):
-    assert len(x.shape) == 4
-    disp_values = torch.arange(0, maxdisp, dtype=x.dtype, device=x.device)
-    disp_values = disp_values.view(1, maxdisp, 1, 1)
-    return torch.sum(x * disp_values, 1, keepdim=False)
-
 def groupwise_difference(fea1, fea2, num_groups):
-    B, G, C, H, W = fea1.shape
+    B, C, H, W = fea1.shape
+    assert C % num_groups == 0
+    channels_per_group = C // num_groups
+    fea1 = fea1.view([B, num_groups, channels_per_group, H, W])
+    fea2 = fea2.view([B, num_groups, channels_per_group, H, W])
     cost = torch.pow((fea1 - fea2), 2).sum(2)
     assert cost.shape == (B, num_groups, H, W)
     return cost
 
 
-def build_struct_volume(refimg_fea, targetimg_fea, maxdisp, num_groups):
-    B, G, C, H, W = refimg_fea.shape
+def build_substract_volume(refimg_fea, targetimg_fea, maxdisp, num_groups):
+    B, C, H, W = refimg_fea.shape
     volume = refimg_fea.new_zeros([B, num_groups, maxdisp, H, W])
     for i in range(maxdisp):
         if i > 0:
-            volume[:, :, i, :, i:] = groupwise_difference(refimg_fea[:, :, :, :, i:], targetimg_fea[:, :, :, :, :-i],
+            volume[:, :, i, :, i:] = groupwise_difference(refimg_fea[:, :, :,  i:], targetimg_fea[:, :, :,  :-i],
                                                            num_groups)
         else:
             volume[:, :, i, :, :] = groupwise_difference(refimg_fea, targetimg_fea, num_groups)
@@ -201,28 +198,6 @@ def build_norm_correlation_volume(refimg_fea, targetimg_fea, maxdisp):
     volume = volume.contiguous()
     return volume
 
-def SpatialTransformer_grid(x, y, disp_range_samples):
-
-    bs, channels, height, width = y.size()
-    ndisp = disp_range_samples.size()[1]
-
-    mh, mw = torch.meshgrid([torch.arange(0, height, dtype=x.dtype, device=x.device),
-                                 torch.arange(0, width, dtype=x.dtype, device=x.device)])  # (H *W)
-    mh = mh.reshape(1, 1, height, width).repeat(bs, ndisp, 1, 1)
-    mw = mw.reshape(1, 1, height, width).repeat(bs, ndisp, 1, 1)  # (B, D, H, W)
-
-    cur_disp_coords_y = mh
-    cur_disp_coords_x = mw - disp_range_samples
-    coords_x = cur_disp_coords_x / ((width - 1.0) / 2.0) - 1.0  # trans to -1 - 1
-    coords_y = cur_disp_coords_y / ((height - 1.0) / 2.0) - 1.0
-    grid = torch.stack([coords_x, coords_y], dim=4) #(B, D, H, W, 2)
-
-    y_warped = F.grid_sample(y, grid.view(bs, ndisp * height, width, 2), mode='bilinear',
-                               padding_mode='zeros', align_corners=True).view(bs, channels, ndisp, height, width)  #(B, C, D, H, W)
-
-    return y_warped
-
-
 def context_upsample(depth_low, up_weights):
     b, c, h, w = depth_low.shape
 
@@ -235,7 +210,6 @@ def context_upsample(depth_low, up_weights):
 
 
 def regression_topk(cost, disparity_samples, k):
-
     _, ind = cost.sort(1, True)
     pool_ind = ind[:, :k]
     cost = torch.gather(cost, 1, pool_ind)
@@ -244,10 +218,4 @@ def regression_topk(cost, disparity_samples, k):
     pred = torch.sum(disparity_samples * prob, dim=1, keepdim=True)
     return pred
 
-
-def disparity_regression(x, maxdisp):
-    assert len(x.shape) == 4
-    disp_values = torch.arange(0, maxdisp, dtype=x.dtype, device=x.device)
-    disp_values = disp_values.view(1, maxdisp, 1, 1)
-    return torch.sum(x * disp_values, 1, keepdim=False)
 

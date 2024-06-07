@@ -32,8 +32,8 @@ parser.add_argument('--trainlist', default='./filenames/sceneflow_train.txt', he
 parser.add_argument('--testlist',default='./filenames/sceneflow_test.txt', help='testing list')
 
 parser.add_argument('--lr', type=float, default=0.001, help='base learning rate')
-parser.add_argument('--batch_size', type=int, default=6, help='training batch size')
-parser.add_argument('--test_batch_size', type=int, default=1, help='testing batch size')
+parser.add_argument('--batch_size', type=int, default=8, help='training batch size')
+parser.add_argument('--test_batch_size', type=int, default=8, help='testing batch size')
 parser.add_argument('--epochs', type=int, default=60, help='number of epochs to train')
 parser.add_argument('--lrepochs', type=str, default="20,32,40,48,56:2", help='the epochs to decay lr: the downscale rate')
 
@@ -45,8 +45,41 @@ parser.add_argument('--seed', type=int, default=1, metavar='S', help='random see
 parser.add_argument('--summary_freq', type=int, default=1, help='the frequency of saving summary')
 parser.add_argument('--save_freq', type=int, default=1, help='the frequency of saving checkpoint')
 
-# parse arguments, set seeds
+parser.add_argument('--cv', type=str, default='gwc_and_norm_correlation', choices=[
+          'gwc_and_norm_correlation',
+          'gwc_and_concat',
+          'gwc_and_gwc_substract',
+          'gwc_substract_and_concat',
+          'gwc_substract_and_norm_correlation',
+          'norm_correlation_and_concat',
+], help='selecting a pair of cost volumes')
+
 args = parser.parse_args()
+
+gwc = False
+norm_correlation = False
+gwc_substract = False
+concat = False
+if args.cv == 'gwc_and_norm_correlation':
+    gwc = True
+    norm_correlation = True
+elif args.cv == 'gwc_and_concat':
+    gwc = True
+    concat = True
+elif args.cv == 'gwc_and_gwc_substract':
+    gwc = True
+    gwc_substract = True
+elif args.cv == 'gwc_substract_and_concat':
+    gwc_substract = True
+    concat = True
+elif args.cv == 'gwc_substract_and_norm_correlation':
+    gwc_substract = True
+    norm_correlation = True
+elif args.cv == 'norm_correlation_and_concat':
+    norm_correlation = True
+    concat = True
+
+# set seeds
 torch.manual_seed(args.seed)
 torch.cuda.manual_seed(args.seed)
 os.makedirs(args.logdir, exist_ok=True)
@@ -63,7 +96,8 @@ TrainImgLoader = DataLoader(train_dataset, args.batch_size, shuffle=True, num_wo
 TestImgLoader = DataLoader(test_dataset, args.test_batch_size, shuffle=False, num_workers=4, drop_last=False)
 
 # model, optimizer
-model = __models__[args.model](args.maxdisp)
+
+model = __models__[args.model](args.maxdisp, gwc, norm_correlation, gwc_substract, concat)
 model = nn.DataParallel(model)
 model.cuda()
 optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(0.9, 0.999))
@@ -83,6 +117,10 @@ if args.resume:
     start_epoch = state_dict['epoch'] + 1
 elif args.loadckpt:
     # load the checkpoint file specified by args.loadckpt
+    cv_name = args.loadckpt.split("sceneflow_")[1].split(".")[0]
+    if cv_name != args.cv:
+        raise AssertionError("Please load weights compatible with " + cv_name)
+
     print("loading model {}".format(args.loadckpt))
     state_dict = torch.load(args.loadckpt)
     model_dict = model.state_dict()

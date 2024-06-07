@@ -30,11 +30,42 @@ parser = argparse.ArgumentParser(description='DCVSMNet')
 parser.add_argument('--model', default='DCVSMNet', help='select a model structure', choices=__models__.keys())
 parser.add_argument('--maxdisp', type=int, default=192, help='maximum disparity')
 parser.add_argument('--dataset', default='kitti', help='dataset name', choices=__datasets__.keys())
-parser.add_argument('--datapath_raw', default="/datasets/kittiraw2/", help='data path')
+parser.add_argument('--datapath_raw', default='/datasets/kittiraw2/', help='data path')
 parser.add_argument('--testlist',default='./filenames/kitti_raw.txt', help='testing list')
-parser.add_argument('--loadckpt', default='./checkpoint/kitti.ckpt',help='load the weights from a specific checkpoint')
-# parse arguments
+parser.add_argument('--loadckpt', default='./checkpoint/kitti_gwc_and_norm_correlation.ckpt',help='load the weights from a specific checkpoint')
+parser.add_argument('--cv', type=str, default='gwc_and_norm_correlation', choices=[
+          'gwc_and_norm_correlation',
+          'gwc_and_concat',
+          'gwc_and_gwc_substract',
+          'gwc_substract_and_concat',
+          'gwc_substract_and_norm_correlation',
+          'norm_correlation_and_concat',
+], help='selecting a pair of cost volumes')
+
 args = parser.parse_args()
+
+gwc = False
+norm_correlation = False
+gwc_substract = False
+concat = False
+if args.cv == 'gwc_and_norm_correlation':
+    gwc = True
+    norm_correlation = True
+elif args.cv == 'gwc_and_concat':
+    gwc = True
+    concat = True
+elif args.cv == 'gwc_and_gwc_substract':
+    gwc = True
+    gwc_substract = True
+elif args.cv == 'gwc_substract_and_concat':
+    gwc_substract = True
+    concat = True
+elif args.cv == 'gwc_substract_and_norm_correlation':
+    gwc_substract = True
+    norm_correlation = True
+elif args.cv == 'norm_correlation_and_concat':
+    norm_correlation = True
+    concat = True
 
 # dataset, dataloader
 StereoDataset = __datasets__[args.dataset]
@@ -42,11 +73,14 @@ test_dataset = StereoDataset(args.datapath_raw, args.datapath_raw, args.testlist
 TestImgLoader = DataLoader(test_dataset, 1, shuffle=False, num_workers=4, drop_last=False)
 
 # model, optimizer
-model = __models__[args.model](args.maxdisp)
+model = __models__[args.model](args.maxdisp, gwc, norm_correlation, gwc_substract, concat)
 model = nn.DataParallel(model)
 model.cuda()
 
 ###load parameters
+cv_name = args.loadckpt.split("kitti_")[1].split(".")[0]
+if cv_name != args.cv:
+    raise AssertionError("Please load weights compatible with " + cv_name)
 print("loading model {}".format(args.loadckpt))
 state_dict = torch.load(args.loadckpt)
 model.load_state_dict(state_dict['model'])
@@ -112,7 +146,7 @@ def test_sample(sample):
     start = torch.cuda.Event(enable_timing=True)
     end = torch.cuda.Event(enable_timing=True)
     start.record()
-    disp_ests = model(im_left, im_right)
+    disp_ests = model(im_left, im_right, train_status=False)
     end.record()
     torch.cuda.synchronize()
     runtime = start.elapsed_time(end)

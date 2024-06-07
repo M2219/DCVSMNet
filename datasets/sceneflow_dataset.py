@@ -104,8 +104,6 @@ class SceneFlowDatset(Dataset):
             left_img = processed(left_img)
             right_img = processed(right_img)
 
-
-
             return {"left": left_img,
                     "right": right_img,
                     "disparity": disparity,
