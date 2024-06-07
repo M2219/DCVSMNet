@@ -18,6 +18,10 @@
   <img width="600" height="300" src="./imgs/mygif.gif" data-zoomable>
 </p>
 
+Performance on Jetson AGX Orin for low resolution input
+<p align="center">
+  <img width="600" height="600" src="./imgs/myimage2.gif" data-zoomable>
+</p>
 
 # SOTA results.
 The results on SceneFlow
