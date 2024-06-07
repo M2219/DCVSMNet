@@ -41,12 +41,12 @@ The results on KITTI dataset using RTX 3090.
 The results on SceneFlow dataset based on the selected cost volumes.
 | Group-wise <br> correlation | Norm <br> correlation  | Concatenation | Group-wise <br> substraction |EPE[px] | D1-all[%] |Runtime <br> (ms)|
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| &check; | -[x] |      |      | 0.60 | 2.11 | 67 |
-| -[x] |      | -[x] |      | 0.59 | 2.05 | 75 |
-| -[x] |      |      | -[x] | 0.59 | 2.06 | 89 |
-|      | -[x] | -[x] |      | 0.72 | 2.59 | 60 |
-|      | -[x] |      | -[x] | 0.65 | 2.28 | 74 |
-|      |      | -[x] | -[x] | 0.69 | 2.38 | 81 |
+| &check; | &check; |         |         | 0.60 | 2.11 | 67 |
+| &check; |         | &check; |         | 0.59 | 2.05 | 75 |
+| &check; |         |         | &check; | 0.59 | 2.06 | 89 |
+|         | &check; | &check; |         | 0.72 | 2.59 | 60 |
+|         | &check; |         | &check; | 0.65 | 2.28 | 74 |
+|         |         | &check; | &check; | 0.69 | 2.38 | 81 |
 
 # How to use
 
