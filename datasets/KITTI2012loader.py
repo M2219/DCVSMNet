@@ -1,14 +1,24 @@
 import torch.utils.data as data
 import torchvision.transforms as transforms
 import os
-from PIL import Image
 import random
 import numpy as np
 
+from PIL import Image
+from typing import List, Tuple
 
-IMG_EXTENSIONS= [
-    '.jpg', '.JPG', '.jpeg', '.JPEG',
-    '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP'
+
+IMG_EXTENSIONS = [
+    ".jpg",
+    ".JPG",
+    ".jpeg",
+    ".JPEG",
+    ".png",
+    ".PNG",
+    ".ppm",
+    ".PPM",
+    ".bmp",
+    ".BMP",
 ]
 
 
@@ -16,13 +26,15 @@ def is_image_file(filename):
     return any(filename.endswith(extension) for extension in IMG_EXTENSIONS)
 
 
-def kt2012_loader(filepath):
+def kt2012_loader(
+    filepath: str,
+) -> Tuple[List[str], List[str], List[str], List[str], List[str], List[str]]:
 
-    left_path = os.path.join(filepath, 'colored_0')
-    right_path = os.path.join(filepath, 'colored_1')
-    displ_path = os.path.join(filepath, 'disp_occ')
+    left_path = os.path.join(filepath, "colored_0")
+    right_path = os.path.join(filepath, "colored_1")
+    displ_path = os.path.join(filepath, "disp_occ")
 
-    total_name = [name for name in os.listdir(left_path) if name.find('_10') > -1]
+    total_name = [name for name in os.listdir(left_path) if name.find("_10") > -1]
     train_name = total_name[:160]
     val_name = total_name[160:]
 
@@ -46,22 +58,32 @@ def kt2012_loader(filepath):
 
 
 def img_loader(path):
-    return Image.open(path).convert('RGB')
+    return Image.open(path).convert("RGB")
 
 
 def disparity_loader(path):
     return Image.open(path)
 
 
-transform = transforms.Compose([
+transform = transforms.Compose(
+    [
         transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ])
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+    ]
+)
 
 
 class myDataset(data.Dataset):
 
-    def __init__(self, left, right, left_disp, training, imgloader=img_loader, disploader=disparity_loader):
+    def __init__(
+        self,
+        left,
+        right,
+        left_disp,
+        training,
+        imgloader=img_loader,
+        disploader=disparity_loader,
+    ):
         self.left = left
         self.right = right
         self.left_disp = left_disp
@@ -87,8 +109,8 @@ class myDataset(data.Dataset):
 
             limg = limg.crop((x1, y1, x1 + tw, y1 + th))
             rimg = rimg.crop((x1, y1, x1 + tw, y1 + th))
-            ldisp = np.ascontiguousarray(ldisp, dtype=np.float32)/256
-            ldisp = ldisp[y1:y1 + th, x1:x1 + tw]
+            ldisp = np.ascontiguousarray(ldisp, dtype=np.float32) / 256
+            ldisp = ldisp[y1 : y1 + th, x1 : x1 + tw]
 
             limg = transform(limg)
             rimg = transform(rimg)
@@ -98,10 +120,10 @@ class myDataset(data.Dataset):
         else:
             w, h = limg.size
 
-            limg = limg.crop((w-1232, h-368, w, h))
-            rimg = rimg.crop((w-1232, h-368, w, h))
-            ldisp = ldisp.crop((w-1232, h-368, w, h))
-            ldisp = np.ascontiguousarray(ldisp, dtype=np.float32)/256
+            limg = limg.crop((w - 1232, h - 368, w, h))
+            rimg = rimg.crop((w - 1232, h - 368, w, h))
+            ldisp = ldisp.crop((w - 1232, h - 368, w, h))
+            ldisp = np.ascontiguousarray(ldisp, dtype=np.float32) / 256
 
             limg = transform(limg)
             rimg = transform(rimg)

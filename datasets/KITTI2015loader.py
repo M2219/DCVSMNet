@@ -2,14 +2,24 @@ import torch
 import torch.utils.data as data
 import torchvision.transforms as transforms
 import os
-from PIL import Image
 import random
 import numpy as np
 
+from typing import List, Tuple
+from PIL import Image
 
-IMG_EXTENSIONS= [
-    '.jpg', '.JPG', '.jpeg', '.JPEG',
-    '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP'
+
+IMG_EXTENSIONS = [
+    ".jpg",
+    ".JPG",
+    ".jpeg",
+    ".JPEG",
+    ".png",
+    ".PNG",
+    ".ppm",
+    ".PPM",
+    ".bmp",
+    ".BMP",
 ]
 
 
@@ -17,14 +27,15 @@ def is_image_file(filename):
     return any(filename.endswith(extension) for extension in IMG_EXTENSIONS)
 
 
-def kt2015_loader(filepath):
+def kt2015_loader(
+    filepath: str,
+) -> Tuple[List[str], List[str], List[str], List[str], List[str], List[str]]:
 
-    left_path = os.path.join(filepath, 'image_2')
-    right_path = os.path.join(filepath, 'image_3')
-    displ_path = os.path.join(filepath, 'disp_occ_0')
+    left_path = os.path.join(filepath, "image_2")
+    right_path = os.path.join(filepath, "image_3")
+    displ_path = os.path.join(filepath, "disp_occ_0")
 
-    # total_name = sorted([name for name in os.listdir(left_path) if name.find('_10') > -1])
-    total_name = [name for name in os.listdir(left_path) if name.find('_10') > -1]
+    total_name = [name for name in os.listdir(left_path) if name.find("_10") > -1]
     train_name = total_name[:160]
     val_name = total_name[160:]
 
@@ -48,7 +59,7 @@ def kt2015_loader(filepath):
 
 
 def img_loader(path):
-    return Image.open(path).convert('RGB')
+    return Image.open(path).convert("RGB")
 
 
 def disparity_loader(path):
@@ -57,7 +68,15 @@ def disparity_loader(path):
 
 class myDataset(data.Dataset):
 
-    def __init__(self, left, right, left_disp, training, imgloader=img_loader, disploader=disparity_loader):
+    def __init__(
+        self,
+        left,
+        right,
+        left_disp,
+        training,
+        imgloader=img_loader,
+        disploader=disparity_loader,
+    ):
         self.left = left
         self.right = right
         self.left_disp = left_disp
@@ -66,9 +85,12 @@ class myDataset(data.Dataset):
         self.imgloader = imgloader
         self.disploader = disploader
 
-        self.transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+        self.transform = transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+            ]
+        )
 
     def __getitem__(self, index):
         left = self.left[index]
@@ -78,11 +100,6 @@ class myDataset(data.Dataset):
         limg = self.imgloader(left)
         rimg = self.imgloader(right)
         ldisp = self.disploader(left_disp)
-
-        # W, H = limg.size
-        # limg = limg.resize((960, 288))
-        # rimg = rimg.resize((960, 288))
-        # ldisp = ldisp.resize((960, 288), Image.NEAREST)
 
         if self.training:
             w, h = limg.size
@@ -94,7 +111,7 @@ class myDataset(data.Dataset):
             limg = limg.crop((x1, y1, x1 + tw, y1 + th))
             rimg = rimg.crop((x1, y1, x1 + tw, y1 + th))
             ldisp = np.ascontiguousarray(ldisp, dtype=np.float32) / 256
-            ldisp = ldisp[y1:y1 + th, x1:x1 + tw]
+            ldisp = ldisp[y1 : y1 + th, x1 : x1 + tw]
 
             limg = self.transform(limg)
             rimg = self.transform(rimg)
@@ -102,17 +119,15 @@ class myDataset(data.Dataset):
         else:
             w, h = limg.size
 
-            limg = limg.crop((w-1232, h-368, w, h))
-            rimg = rimg.crop((w-1232, h-368, w, h))
-            ldisp = ldisp.crop((w-1232, h-368, w, h))
-            ldisp = np.ascontiguousarray(ldisp, dtype=np.float32)/256
+            limg = limg.crop((w - 1232, h - 368, w, h))
+            rimg = rimg.crop((w - 1232, h - 368, w, h))
+            ldisp = ldisp.crop((w - 1232, h - 368, w, h))
+            ldisp = np.ascontiguousarray(ldisp, dtype=np.float32) / 256
 
             limg = self.transform(limg)
             rimg = self.transform(rimg)
 
-        # ldisp = ldisp * (960/W)
         return limg, rimg, ldisp, ldisp
 
     def __len__(self):
         return len(self.left)
-

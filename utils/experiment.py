@@ -1,16 +1,21 @@
 from __future__ import print_function, division
+
 import torch
 import torch.nn as nn
 import torch.nn.parallel
 import torch.utils.data
-from torch.autograd import Variable
 import torchvision.utils as vutils
 import torch.nn.functional as F
 import numpy as np
 import copy
 
+from torch.autograd import Variable
+from tensorboardX.writer import SummaryWriter
+from torch.optim.adam import Adam
+from typing import Callable, Dict, List, Union
 
-def make_iterative_func(func):
+
+def make_iterative_func(func: Callable) -> Callable:
     def wrapper(vars):
         if isinstance(vars, list):
             return [wrapper(x) for x in vars]
@@ -24,7 +29,7 @@ def make_iterative_func(func):
     return wrapper
 
 
-def make_nograd_func(func):
+def make_nograd_func(func: Callable) -> Callable:
     def wrapper(*f_args, **f_kwargs):
         with torch.no_grad():
             ret = func(*f_args, **f_kwargs)
@@ -58,13 +63,18 @@ def check_allfloat(vars):
     assert isinstance(vars, float)
 
 
-def save_scalars(logger, mode_tag, scalar_dict, global_step):
+def save_scalars(
+    logger: SummaryWriter,
+    mode_tag: str,
+    scalar_dict: Dict[str, Union[float, List[float]]],
+    global_step: int,
+) -> None:
     scalar_dict = tensor2float(scalar_dict)
     for tag, values in scalar_dict.items():
         if not isinstance(values, list) and not isinstance(values, tuple):
             values = [values]
         for idx, value in enumerate(values):
-            scalar_name = '{}/{}'.format(mode_tag, tag)
+            scalar_name = "{}/{}".format(mode_tag, tag)
             scalar_name = scalar_name + "_" + str(idx)
             logger.add_scalar(scalar_name, value, global_step)
 
@@ -80,22 +90,31 @@ def save_images(logger, mode_tag, images_dict, global_step):
             value = value[:1]
             value = torch.from_numpy(value)
 
-            image_name = '{}/{}'.format(mode_tag, tag)
+            image_name = "{}/{}".format(mode_tag, tag)
             if len(values) > 1:
                 image_name = image_name + "_" + str(idx)
-            logger.add_image(image_name, vutils.make_grid(value, padding=0, nrow=1, normalize=True, scale_each=True),
-                             global_step)
+            logger.add_image(
+                image_name,
+                vutils.make_grid(
+                    value, padding=0, nrow=1, normalize=True, scale_each=True
+                ),
+                global_step,
+            )
 
 
-def adjust_learning_rate(optimizer, epoch, base_lr, lrepochs):
-    splits = lrepochs.split(':')
+def adjust_learning_rate(
+    optimizer: Adam, epoch: int, base_lr: float, lrepochs: str
+) -> None:
+    splits = lrepochs.split(":")
     assert len(splits) == 2
 
-    # parse the epochs to downscale the learning rate (before :)
-    downscale_epochs = [int(eid_str) for eid_str in splits[0].split(',')]
-    # parse downscale rate (after :)
+    downscale_epochs = [int(eid_str) for eid_str in splits[0].split(",")]
     downscale_rate = float(splits[1])
-    print("downscale epochs: {}, downscale rate: {}".format(downscale_epochs, downscale_rate))
+    print(
+        "downscale epochs: {}, downscale rate: {}".format(
+            downscale_epochs, downscale_rate
+        )
+    )
 
     lr = base_lr
     for eid in downscale_epochs:
@@ -105,12 +124,12 @@ def adjust_learning_rate(optimizer, epoch, base_lr, lrepochs):
             break
     print("setting learning rate to {}".format(lr))
     for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
+        param_group["lr"] = lr
 
 
 class AverageMeter(object):
     def __init__(self):
-        self.sum_value = 0.
+        self.sum_value = 0.0
         self.count = 0
 
     def update(self, x):
@@ -123,11 +142,11 @@ class AverageMeter(object):
 
 
 class AverageMeterDict(object):
-    def __init__(self):
+    def __init__(self) -> None:
         self.data = None
         self.count = 0
 
-    def update(self, x):
+    def update(self, x: Dict[str, Union[float, List[float]]]) -> None:
         check_allfloat(x)
         self.count += 1
         if self.data is None:
@@ -140,9 +159,11 @@ class AverageMeterDict(object):
                     for idx, v2 in enumerate(v1):
                         self.data[k1][idx] += v2
                 else:
-                    assert NotImplementedError("error input type for update AvgMeterDict")
+                    assert NotImplementedError(
+                        "error input type for update AvgMeterDict"
+                    )
 
-    def mean(self):
+    def mean(self) -> Dict[str, Union[float, List[float]]]:
         @make_iterative_func
         def get_mean(v):
             return v / float(self.count)

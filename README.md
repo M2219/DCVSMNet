@@ -56,15 +56,15 @@ The results on SceneFlow dataset based on the selected cost volumes.
 
 ## Environment
 * NVIDIA RTX 3090
-* Python 3.8
-* Pytorch 1.12
+* Python 3.11
+* Pytorch 2.0.0
 
 ## Install
 
 ### Create a virtual environment and activate it.
 
 ```
-conda create -n DCVSMNet python=3.8
+conda create -n DCVSMNet python=3.11
 conda activate DCVSMNet
 ```
 ### Dependencies
