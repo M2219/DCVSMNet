@@ -127,6 +127,7 @@ def test():
     fps_list = np.array([])
     im_left_list = []
     im_right_list = []
+    left_img_host = []
     samples = []
     for batch_idx, sample in enumerate(TestImgLoader):
 
@@ -143,7 +144,7 @@ def test():
 
     disps, fps_list = test_sample(im_left_list, im_right_list)
 
-    for disp_gen, fps, sample in zip(disps, fps_list, samples):
+    for disp_gen, fps, sample, left_img in zip(disps, fps_list, samples, left_img_host):
 
         disp_est_np = tensor2numpy(disp_gen)
 
