@@ -125,6 +125,9 @@ def load_path(list_filename):
 def test():
     os.makedirs(save_dir, exist_ok=True)
     fps_list = np.array([])
+    im_left_list = []
+    im_right_list = []
+    samples = []
     for batch_idx, sample in enumerate(TestImgLoader):
 
         left_filenames, right_filenames = load_path(args.testlist)
@@ -134,10 +137,17 @@ def test():
             Image.open(os.path.join(args.datapath_raw, left_filenames[batch_idx]))
         )
 
-        disp_gen, fps = test_sample(sample)
+        im_left_list.append(sample["left"].cuda())
+        im_right_list.append(sample["right"].cuda())
+        samples.append(sample)
+
+    disps, fps_list = test_sample(im_left_list, im_right_list)
+
+    for disp_gen, fps, sample in zip(disps, fps_list, samples):
+
         disp_est_np = tensor2numpy(disp_gen)
 
-        print("Iter {}/{}, time = {:3f}".format(batch_idx, len(TestImgLoader), fps))
+        print("fps = {:3f}".format(fps))
         top_pad_np = tensor2numpy(sample["top_pad"])
         right_pad_np = tensor2numpy(sample["right_pad"])
         left_filenames = sample["left_filename"]
@@ -173,22 +183,24 @@ def test():
 
 
 @make_nograd_func
-def test_sample(sample):
+def test_sample(im_left, im_right):
+
     model.eval()
+    fps = []
+    disps = []
+    for rep in range(len(im_left)):
 
-    im_left = sample["left"].cuda()
-    im_right = sample["right"].cuda()
+        start = torch.cuda.Event(enable_timing=True)
+        end = torch.cuda.Event(enable_timing=True)
+        start.record()
+        disp_ests = model(im_left[rep], im_right[rep], train_status=False)
+        end.record()
+        torch.cuda.synchronize()
+        runtime = start.elapsed_time(end)
+        fps.append(1000 / runtime)
+        disps.append(disp_ests[0])
 
-    start = torch.cuda.Event(enable_timing=True)
-    end = torch.cuda.Event(enable_timing=True)
-    start.record()
-    disp_ests = model(im_left, im_right, train_status=False)
-    end.record()
-    torch.cuda.synchronize()
-    runtime = start.elapsed_time(end)
-    fps = 1000 / runtime
-    return disp_ests[-1], fps
-
+    return disps, fps
 
 if __name__ == "__main__":
     test()
