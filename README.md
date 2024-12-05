@@ -103,8 +103,6 @@ python train_kitti.py --logdir ./checkpoints/kitti/ --loadckpt ./checkpoints/sce
 ```
 
 
-## Evaluation on SceneFlow and KITTI
-
 ### Pretrained Model
 * [DCVSMNet](https://drive.google.com/drive/folders/1VcfEpO9Mv0Bt7Xdvckii4SAavW8cL1_d)
 
