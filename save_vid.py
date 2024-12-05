@@ -138,6 +138,7 @@ def test():
             Image.open(os.path.join(args.datapath_raw, left_filenames[batch_idx]))
         )
 
+        left_img_host.append(left_img)
         im_left_list.append(sample["left"].cuda())
         im_right_list.append(sample["right"].cuda())
         samples.append(sample)
@@ -190,7 +191,6 @@ def test_sample(im_left, im_right):
     fps = []
     disps = []
     for rep in range(len(im_left)):
-
         start = torch.cuda.Event(enable_timing=True)
         end = torch.cuda.Event(enable_timing=True)
         start.record()
