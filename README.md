@@ -13,7 +13,7 @@
 </p>
 
 
-# Performance on KITTI raw dataset
+# Performance on KITTI raw dataset: RTX 4070 S
 <p align="center">
   <img width="600" height="300" src="./imgs/mygif.gif" data-zoomable>
 </p>
@@ -118,13 +118,18 @@ python save_disp.py
 If you find this project helpful in your research, welcome to cite the paper.
 
 ```
-@misc{tahmasebi2024dcvsmnet,
-      title={DCVSMNet: Double Cost Volume Stereo Matching Network}, 
-      author={Mahmoud Tahmasebi and Saif Huq and Kevin Meehan and Marion McAfee},
-      year={2024},
-      eprint={2402.16473},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@article{TAHMASEBI2025129002,
+title = {DCVSMNet: Double Cost Volume Stereo Matching Network},
+journal = {Neurocomputing},
+volume = {618},
+pages = {129002},
+year = {2025},
+issn = {0925-2312},
+doi = {https://doi.org/10.1016/j.neucom.2024.129002},
+url = {https://www.sciencedirect.com/science/article/pii/S0925231224017739},
+author = {Mahmoud Tahmasebi and Saif Huq and Kevin Meehan and Marion McAfee},
+keywords = {Stereo matching, Cost volume construction, Disparity estimation},
+abstract = {We introduce the Double Cost Volume Stereo Matching Network (DCVSMNet11The source code is available at https://github.com/M2219/DCVSMNet.), a novel architecture characterized by two upper (group-wise correlation) and lower (norm correlation) small cost volumes. Each cost volume is processed separately, and a coupling module is proposed to fuse the geometry information extracted from the upper and lower cost volumes. DCVSMNet is a fast stereo matching network with a 67 ms inference time and strong generalization ability which can produce competitive results compared to state-of-the-art methods. The results on several benchmark datasets show that DCVSMNet achieves better accuracy than methods such as CGI-Stereo and BGNet at the cost of greater inference time.}
 }
 ```
 
