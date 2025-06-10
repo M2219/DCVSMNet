@@ -25,7 +25,7 @@ Performance on Jetson AGX Orin for low resolution input
 
 Test using Isaacsim + ROS2
 <p align="center">
-  <img width="400" height="400" src="./imgs/disparity_output_optimized.gif" data-zoomable>
+  <img width="640" height="380" src="./imgs/disparity_output_optimized.gif" data-zoomable>
 </p>
 
 # SOTA results.
