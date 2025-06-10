@@ -23,11 +23,15 @@ Performance on Jetson AGX Orin for low resolution input
   <img width="400" height="400" src="./imgs/myimage2.gif" data-zoomable>
 </p>
 
+Test using Isaacsim + ROS2
+<p align="center">
+  <img width="400" height="400" src="./imgs/disparity_output_optimized.gif" data-zoomable>
+</p>
+
 # SOTA results.
 The results on SceneFlow
 
 <p align="center"><img width=90% src="imgs/performance.png"></p>
-
 
 The results on KITTI dataset using RTX 3090.
 | Method | KITTI 2012 <br> (3-noc) | KITTI 2012 <br> (3-all) | KITTI 2015 <br> (D1-bg) | KITTI 2015 <br> (D1-fg) | KITTI 2015 <br> (D1-all) |Runtime <br> (ms)|
